@@ -66,49 +66,53 @@ class MdsDriver (ResourceDriverInterface):
 
         self._dumblog('got session object')
         cli_session.login()
+        cli_session.send_and_receive('terminal length 0')
         self._dumblog('logged in')
 
 
         return cli_session
 
 
-    def create_zone(self, context, zone_name):
+    def create_zone(self, context, zone_name, vsan):
 
         cli = self._get_cli_session(context)
 
         cli.send_and_receive('config t')
-        cli.send_and_receive('zone name ' + zone_name + ' vsan ' + context.resource.attributes['vsan'])
+        cli.send_and_receive('zone name ' + zone_name + ' vsan ' + vsan)
 
     def get_active_zoneset_name(self, context):
-        pass
-        #todo
+        cli = self._get_cli_session(context)
+        index, pattern, result = cli.send_and_receive('show zoneset active',pattern_list=['.*vsan.*'])
+        zoneset = result.split('name')[1].split('vsan')[0].strip
+        return zoneset
 
-    def add_zone_to_zoneset(self, context, zone_name):
+
+    def add_zone_to_zoneset(self, context, zone_name, zone_set, vsan):
         cli = self._get_cli_session(context)
         cli.send_and_receive('config t')
-        cli.send_and_receive('zoneset name ' + context.resource.attributes['zoneset'] + ' vsan ' +
-                             context.resource.attributes['vsan'])
+        cli.send_and_receive('zoneset name ' + zone_set + ' vsan ' +
+                             vsan)
         cli.send_and_receive('member ' + zone_name)
 
 
-    def add_wwn_to_zone(self, context, zone_name, wwn):
+    def add_wwn_to_zone(self, context, zone_name, vsan, wwn):
 
         cli = self._get_cli_session(context)
         cli.send_and_receive('config t')
-        cli.send_and_receive('zone name ' + zone_name + ' vsan ' + context.resource.attributes['vsan'])
+        cli.send_and_receive('zone name ' + zone_name + ' vsan ' + vsan)
         cli.send_and_receive('member pwwn ' + wwn)
 
 
-    def activate_zoneset(self, context):
+    def activate_zoneset(self, context, zone_set, vsan):
 
         cli = self._get_cli_session(context)
 
         cli.send_and_receive('config t')
-        cli.send_and_receive('zoneset activate name ' + context.resource.attributes['zoneset'] + ' vsan ' +
-                             context.resource.attributes['vsan'])
+        cli.send_and_receive('zoneset activate name ' + zone_set + ' vsan ' +
+                             vsan)
 
 
-    def delete_zone(self, context, zone_name):
+    def delete_zone(self, context, zone_name, vsan):
         cli = self._get_cli_session(context)
         cli.send_and_receive('config t')
-        cli.send_and_receive('no zone name ' + zone_name + ' vsan ' + context.resource.attributes['vsan'])
+        cli.send_and_receive('no zone name ' + zone_name + ' vsan ' + vsan)

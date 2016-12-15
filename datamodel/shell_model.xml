@@ -12,12 +12,6 @@
                 <AttachedAttribute Name="Password" IsOverridable="true" IsLocal="true">
                   <AllowedValues />
                 </AttachedAttribute>
-                <AttachedAttribute Name="vsan" IsOverridable="true" IsLocal="true">
-                  <AllowedValues />
-                </AttachedAttribute>
-                <AttachedAttribute Name="zoneset" IsOverridable="true" IsLocal="true">
-                  <AllowedValues />
-                </AttachedAttribute>
                 <AttachedAttribute Name="Power Management" IsOverridable="true" IsLocal="true">
                   <AllowedValues />
                 </AttachedAttribute>
@@ -78,8 +72,6 @@
             </AttachedAttributes>
             <AttributeValues>
                 <AttributeValue Name="User" Value="" />
-                <AttributeValue Name="vsan" Value="" />
-                <AttributeValue Name="zoneset" Value="" />
                 <AttributeValue Name="Password" Value="3M3u7nkDzxWb0aJ/IZYeWw==" />
                 <AttributeValue Name="Enable Password" Value="3M3u7nkDzxWb0aJ/IZYeWw==" />
                 <AttributeValue Name="System Name" Value="" />

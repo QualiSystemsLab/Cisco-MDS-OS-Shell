@@ -9,8 +9,6 @@
         <Attributes>
             <Attribute Name="User" Value="" />
             <Attribute Name="Password" Value="" />
-            <Attribute Name="vsan" Value="" />
-            <Attribute Name="zoneset" Value="" />
         </Attributes>
     </ResourceTemplate>    
 </ResourceTemplates>
