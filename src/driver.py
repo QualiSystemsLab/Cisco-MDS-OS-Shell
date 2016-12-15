@@ -2,7 +2,7 @@ from cloudshell.shell.core.resource_driver_interface import ResourceDriverInterf
 from cloudshell.shell.core.context import InitCommandContext, ResourceCommandContext
 from cloudshell.api.cloudshell_api import CloudShellAPISession
 from QualiLab_CLI import Cli_Lib
-
+from cloudshell.core.logger import qs_logger
 
 class MdsDriver (ResourceDriverInterface):
 
@@ -19,9 +19,28 @@ class MdsDriver (ResourceDriverInterface):
         """
         pass
 
-    def _dumblog(self, message):
-        with open('c:\\temp\\dumblog.txt', 'a') as log:
-            log.write(message + '\n')
+    def _log(self, context, message, level='info'):
+        """
+
+        :param ResourceCommandContext context:
+        :return:
+        """
+
+        if self.logger is None:
+            if hasattr(context.reservation):
+                self.logger = qs_logger.get_qs_logger(context.reservation.reservation_id, 'PureStorageFlashArray',
+                                                  context.resource.name)
+            else:
+                self.logger = qs_logger.get_qs_logger('Unreserved', 'PureStorageFlashArray', context.resource.name)
+
+        if level == 'info':
+            self.logger.info(message)
+        elif level == 'debug':
+            self.logger.debug(message)
+        elif level == 'error':
+            self.logger.error(message)
+        elif level == 'critical':
+            self.logger.critical(message)
 
 
     def initialize(self, context):
@@ -64,10 +83,10 @@ class MdsDriver (ResourceDriverInterface):
                                   context.resource.attributes['User'],
                                   self._decrypt_password(context, context.resource.attributes['Password']))
 
-        self._dumblog('got session object')
+
         cli_session.login()
         cli_session.send_and_receive('terminal length 0')
-        self._dumblog('logged in')
+
 
 
         return cli_session
