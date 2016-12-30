@@ -103,7 +103,7 @@ class MdsDriver (ResourceDriverInterface):
         cli = self._get_cli_session(context)
         index, pattern, result = cli.send_and_receive('show zoneset active',pattern_list=['.*vsan.*'])
         zoneset = result.split('name')[1].split('vsan')[0].strip
-        return zoneset
+        print zoneset
 
 
     def add_zone_to_zoneset(self, context, zone_name, zone_set, vsan):
