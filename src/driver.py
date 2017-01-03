@@ -102,7 +102,9 @@ class MdsDriver (ResourceDriverInterface):
     def get_active_zoneset_name(self, context):
         cli = self._get_cli_session(context)
         index, pattern, result = cli.send_and_receive('show zoneset active',pattern_list=['.*vsan.*'])
-        zoneset = result.split('name')[1].split('vsan')[0].strip
+
+
+        zoneset = result.split('name')[1].split('vsan')[0].strip()
         return zoneset
 
 
