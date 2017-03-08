@@ -2,14 +2,14 @@
 <properties>
 
     <!-- The address of the Quali server on which to deploy, mandatory -->
-    <serverRootAddress>localhost</serverRootAddress>
+    <serverRootAddress>10.21.93.101</serverRootAddress>
 
     <!-- The port of the Quali server on which to deploy, defaults to "8029" -->
     <port>8029</port>
 
     <!-- The server admin username, password and domain to use when deploying -->
-    <username>YOUR_USERNAME</username>
-    <password>YOUR_PASSWORD</password>
+    <username>admin</username>
+    <password>gopurestorage34!</password>
     <domain>Global</domain>
 
     <!-- Simple patterns to filter when sending the driver to the server separated by semicolons (e.g. "file.xml;logs/", also supports regular expressions),
@@ -26,7 +26,7 @@
  may be a path to a directory, in which case all the files and folders under the directory are added into the driver's zip file.
  if the <sources> element is not specified, all the files under the project are added to the driver's zip file -->
             <sources>
-                 <source>src</source>
+                 <source>Cisco-MDS-OS-Shell/src</source>
             </sources>
             <!-- the driver name of the driver to update -->
             <targetName>MdsDriver</targetName>
