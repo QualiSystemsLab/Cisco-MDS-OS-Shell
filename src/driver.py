@@ -78,18 +78,27 @@ class MdsDriver (ResourceDriverInterface):
         :param ResourceCommandContext context:
         :return:
         """
-
-        cli_session = Cli_Lib.Cli(context.resource.address, int(context.resource.attributes['Console Port']), 'SSH',
-                                  context.resource.attributes['User'],
-                                  self._decrypt_password(context, context.resource.attributes['Password']))
-
-
-        cli_session.login()
-        cli_session.send_and_receive('terminal length 0')
+        try:
+            cli_session = Cli_Lib.Cli(context.resource.address, int(context.resource.attributes['Console Port']), 'SSH',
+                                      context.resource.attributes['User'],
+                                      self._decrypt_password(context, context.resource.attributes['Password']))
 
 
+            cli_session.login()
+            cli_session.send_and_receive('terminal length 0')
 
-        return cli_session
+
+
+            return cli_session
+
+        except Exception as e:
+
+            api = self._get_api_session(context)
+            api.WriteMessageToReservationOutput(context.reservation.reservation_id,
+                                                '<font color=red>Error: </font>Failed to connect to ' +
+                                                context.resource.name)
+            api.WriteMessageToReservationOutput(context.reservation.reservation_id, 'Please check connectivity and credentials')
+            raise e
 
 
     def create_zone(self, context, zone_name, vsan):
