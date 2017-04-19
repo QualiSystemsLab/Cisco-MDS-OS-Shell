@@ -17,6 +17,8 @@ class MdsDriver (ResourceDriverInterface):
         """
         ctor must be without arguments, it is created with reflection at run time
         """
+        self.api_session = None
+        self.logger = None
         pass
 
     def _log(self, context, message, level='info'):
@@ -27,7 +29,7 @@ class MdsDriver (ResourceDriverInterface):
         """
 
         if self.logger is None:
-            if hasattr(context.reservation):
+            if hasattr(context, 'reservation'):
                 self.logger = qs_logger.get_qs_logger(context.reservation.reservation_id, 'PureStorageFlashArray',
                                                   context.resource.name)
             else:
@@ -51,6 +53,13 @@ class MdsDriver (ResourceDriverInterface):
         """
         pass
 
+
+    def _write_to_output(self, message, context):
+
+        if not self.api_session:
+            self.api_session = self._get_api_session(context)
+
+        self.api_session.WriteMessageToReservationOutput(context.reservation.reservation_id, message)
 
     def _get_api_session(self, context):
 
@@ -78,10 +87,11 @@ class MdsDriver (ResourceDriverInterface):
         :param ResourceCommandContext context:
         :return:
         """
+        self._log(context, 'connecting')
         try:
             cli_session = Cli_Lib.Cli(context.resource.address, int(context.resource.attributes['Console Port']), 'SSH',
                                       context.resource.attributes['User'],
-                                      self._decrypt_password(context, context.resource.attributes['Password']))
+                                      self._decrypt_password(context, context.resource.attributes['Password']),self.logger)
 
 
             cli_session.login()
@@ -102,22 +112,24 @@ class MdsDriver (ResourceDriverInterface):
 
 
     def create_zone(self, context, zone_name, vsan):
-
+        self._log(context, 'Creating zone ' + zone_name + ' vsan ' + vsan)
         cli = self._get_cli_session(context)
 
         cli.send_and_receive('config t')
         cli.send_and_receive('zone name ' + zone_name + ' vsan ' + vsan)
 
     def get_active_zoneset_name(self, context):
+        self._log(context, 'getting active zoneset')
         cli = self._get_cli_session(context)
         index, pattern, result = cli.send_and_receive('show zoneset active',pattern_list=['.*vsan.*'])
 
-
         zoneset = result.split('name')[1].split('vsan')[0].strip()
+        self._log(context, 'found zoneset ' + zoneset)
         return zoneset
 
 
     def add_zone_to_zoneset(self, context, zone_name, zone_set, vsan):
+        self._log(context, 'adding zone ' + zone_name + ' vsan ' + vsan + ' to zoneset ' + zone_set)
         cli = self._get_cli_session(context)
         cli.send_and_receive('config t')
         cli.send_and_receive('zoneset name ' + zone_set + ' vsan ' +
@@ -126,7 +138,7 @@ class MdsDriver (ResourceDriverInterface):
 
 
     def add_wwn_to_zone(self, context, zone_name, vsan, wwn):
-
+        self._log(context, 'adding wwn ' + wwn + ' to zone ' + zone_name + ' vsan ' + vsan)
         cli = self._get_cli_session(context)
         cli.send_and_receive('config t')
         cli.send_and_receive('zone name ' + zone_name + ' vsan ' + vsan)
@@ -134,15 +146,20 @@ class MdsDriver (ResourceDriverInterface):
 
 
     def activate_zoneset(self, context, zone_set, vsan):
-
+        self._log(context, 'activating zoneset ' + zone_set + ' vsan ' + vsan)
         cli = self._get_cli_session(context)
 
-        cli.send_and_receive('config t')
+        result = cli.send_and_receive('config t')
+
         cli.send_and_receive('zoneset activate name ' + zone_set + ' vsan ' +
-                             vsan)
+                             vsan, pattern_list=['.*#.*','.*ignificantly.*'])
+
+        if result[0] == 1:
+            cli.send_and_receive('y')
 
 
     def delete_zone(self, context, zone_name, vsan):
+        self._log(context, 'deleting zone ' + zone_name + ' vsan ' + vsan)
         cli = self._get_cli_session(context)
         cli.send_and_receive('config t')
         cli.send_and_receive('no zone name ' + zone_name + ' vsan ' + vsan)
